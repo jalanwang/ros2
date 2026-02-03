@@ -1,0 +1,25 @@
+[0.560s] Invoking command in '/home/robot/robot_ws/build/my_first_topic_pkg': PYTHONPATH=/home/robot/robot_ws/build/my_first_topic_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/robot/robot_ws/install/my_first_topic_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/robot/robot_ws/build/my_first_topic_pkg/build --no-deps symlink_data
+[0.788s] running develop
+[0.929s] running egg_info
+[0.929s] creating my_first_topic_pkg.egg-info
+[0.930s] writing my_first_topic_pkg.egg-info/PKG-INFO
+[0.930s] writing dependency_links to my_first_topic_pkg.egg-info/dependency_links.txt
+[0.930s] writing entry points to my_first_topic_pkg.egg-info/entry_points.txt
+[0.930s] writing requirements to my_first_topic_pkg.egg-info/requires.txt
+[0.930s] writing top-level names to my_first_topic_pkg.egg-info/top_level.txt
+[0.930s] writing manifest file 'my_first_topic_pkg.egg-info/SOURCES.txt'
+[0.932s] reading manifest file 'my_first_topic_pkg.egg-info/SOURCES.txt'
+[0.932s] writing manifest file 'my_first_topic_pkg.egg-info/SOURCES.txt'
+[0.934s] running build_ext
+[0.934s] Creating /home/robot/robot_ws/install/my_first_topic_pkg/lib/python3.10/site-packages/my-first-topic-pkg.egg-link (link to .)
+[0.935s] Installing listener script to /home/robot/robot_ws/install/my_first_topic_pkg/lib/my_first_topic_pkg
+[0.935s] Installing talker script to /home/robot/robot_ws/install/my_first_topic_pkg/lib/my_first_topic_pkg
+[0.935s] 
+[0.935s] Installed /home/robot/robot_ws/build/my_first_topic_pkg
+[0.935s] running symlink_data
+[0.935s] creating /home/robot/robot_ws/install/my_first_topic_pkg/share/ament_index
+[0.936s] creating /home/robot/robot_ws/install/my_first_topic_pkg/share/ament_index/resource_index
+[0.936s] creating /home/robot/robot_ws/install/my_first_topic_pkg/share/ament_index/resource_index/packages
+[0.936s] symbolically linking /home/robot/robot_ws/build/my_first_topic_pkg/resource/my_first_topic_pkg -> /home/robot/robot_ws/install/my_first_topic_pkg/share/ament_index/resource_index/packages
+[0.936s] symbolically linking /home/robot/robot_ws/build/my_first_topic_pkg/package.xml -> /home/robot/robot_ws/install/my_first_topic_pkg/share/my_first_topic_pkg
+[0.960s] Invoked command in '/home/robot/robot_ws/build/my_first_topic_pkg' returned '0': PYTHONPATH=/home/robot/robot_ws/build/my_first_topic_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/robot/robot_ws/install/my_first_topic_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/robot/robot_ws/build/my_first_topic_pkg/build --no-deps symlink_data

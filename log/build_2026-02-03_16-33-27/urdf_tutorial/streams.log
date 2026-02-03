@@ -1,0 +1,26 @@
+[1.287s] Invoking command in '/home/robot/robot_ws/build/urdf_tutorial': PYTHONPATH=/home/robot/robot_ws/build/urdf_tutorial/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/robot/robot_ws/install/urdf_tutorial/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/robot/robot_ws/build/urdf_tutorial/build --no-deps symlink_data
+[1.687s] running develop
+[1.955s] running egg_info
+[1.955s] writing urdf_tutorial.egg-info/PKG-INFO
+[1.956s] writing dependency_links to urdf_tutorial.egg-info/dependency_links.txt
+[1.957s] writing entry points to urdf_tutorial.egg-info/entry_points.txt
+[1.958s] writing requirements to urdf_tutorial.egg-info/requires.txt
+[1.958s] writing top-level names to urdf_tutorial.egg-info/top_level.txt
+[1.963s] reading manifest file 'urdf_tutorial.egg-info/SOURCES.txt'
+[1.966s] writing manifest file 'urdf_tutorial.egg-info/SOURCES.txt'
+[1.967s] running build_ext
+[1.967s] Creating /home/robot/robot_ws/install/urdf_tutorial/lib/python3.10/site-packages/urdf-tutorial.egg-link (link to .)
+[1.968s] 
+[1.969s] Installed /home/robot/robot_ws/build/urdf_tutorial
+[1.969s] running symlink_data
+[1.973s] symbolically linking /home/robot/robot_ws/build/urdf_tutorial/launch/robot_3.launch.py -> /home/robot/robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+[1.973s] symbolically linking /home/robot/robot_ws/build/urdf_tutorial/launch/sim.launch.py -> /home/robot/robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+[1.973s] symbolically linking /home/robot/robot_ws/build/urdf_tutorial/launch/robot_2.launch.py -> /home/robot/robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+[1.973s] symbolically linking /home/robot/robot_ws/build/urdf_tutorial/launch/robot_4.launch.py -> /home/robot/robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+[1.973s] symbolically linking /home/robot/robot_ws/build/urdf_tutorial/launch/lidar.launch.py -> /home/robot/robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+[1.973s] symbolically linking /home/robot/robot_ws/build/urdf_tutorial/urdf/macros.xacro -> /home/robot/robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[1.973s] symbolically linking /home/robot/robot_ws/build/urdf_tutorial/urdf/gazebo.xacro -> /home/robot/robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[1.973s] symbolically linking /home/robot/robot_ws/build/urdf_tutorial/urdf/robot_3.xacro -> /home/robot/robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[1.973s] symbolically linking /home/robot/robot_ws/build/urdf_tutorial/urdf/robot_2.xacro -> /home/robot/robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[1.973s] symbolically linking /home/robot/robot_ws/build/urdf_tutorial/urdf/robot_4.xacro -> /home/robot/robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[2.039s] Invoked command in '/home/robot/robot_ws/build/urdf_tutorial' returned '0': PYTHONPATH=/home/robot/robot_ws/build/urdf_tutorial/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/robot/robot_ws/install/urdf_tutorial/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/robot/robot_ws/build/urdf_tutorial/build --no-deps symlink_data
