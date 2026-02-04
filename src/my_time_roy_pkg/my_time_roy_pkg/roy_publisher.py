@@ -38,5 +38,5 @@ def main(args=None):
         node.destroy_node()
         rclpy.shutdown()
 
-if __name__ == '__main__': # 언더바 오타 수정
+if __name__ == '__main__':
     main()
