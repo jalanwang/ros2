@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>img/Cold-Brewed-Coffee-What-You-Need-to-Know.jpg</file>
+  </qresource>
+</RCC>
