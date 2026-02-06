@@ -22,9 +22,17 @@ setup(
             'pytest',
         ],
     },
+    # entry_points: setuptools entry points for creating command-line scripts.
+    # 'console_scripts' 항목은 설치 시 실행 가능한 커맨드(스크립트)를 생성합니다.
+    # 형식: '<스크립트이름> = <모듈경로>:<콜러블>'
+    # 예: 아래 설정은 패키지를 설치한 후 `move_turtle` 명령을 실행하면
+    # `my_move_turtle_pkg.move_turtle` 모듈의 `main()` 함수를 호출합니다.
     entry_points={
         'console_scripts': [
+            # `move_turtle` 명령 -> my_move_turtle_pkg.move_turtle:main()
             'move_turtle = my_move_turtle_pkg.move_turtle:main',
+            #'turtle_cmd_and_pose = my_move_turtle_pkg.turtle_cmd_and_pose:main',
+            'turtle_cmd_and_pose = my_move_turtle_pkg.turtle_cmd_and_pose1:main',
         ],
     },
 )
