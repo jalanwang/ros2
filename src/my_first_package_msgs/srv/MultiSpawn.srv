@@ -1,0 +1,7 @@
+# Request: 생성할 거북이 개수
+int64 num
+---
+# Response: 생성된 거북이들의 위치
+float64[] x
+float64[] y
+float64[] theta

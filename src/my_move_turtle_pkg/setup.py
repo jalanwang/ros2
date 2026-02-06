@@ -32,7 +32,8 @@ setup(
             # `move_turtle` 명령 -> my_move_turtle_pkg.move_turtle:main()
             'move_turtle = my_move_turtle_pkg.move_turtle:main',
             #'turtle_cmd_and_pose = my_move_turtle_pkg.turtle_cmd_and_pose:main',
-            'turtle_cmd_and_pose = my_move_turtle_pkg.turtle_cmd_and_pose1:main',
+            #'turtle_cmd_and_pose = my_move_turtle_pkg.turtle_cmd_and_pose1:main',
+            'turtle_cmd_and_pose = my_move_turtle_pkg.turtle_cmd_and_pose2:main',
         ],
     },
 )
