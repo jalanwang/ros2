@@ -12,6 +12,7 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
  "msg/CmdAndPoseVel.msg"
  "srv/MultiSpawn.srv"  # 서비스 추가
+ "action/DistTurtle.action"  # 액션 추가
 )
 
 if(BUILD_TESTING)

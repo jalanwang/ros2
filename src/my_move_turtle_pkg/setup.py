@@ -34,6 +34,12 @@ setup(
             #'turtle_cmd_and_pose = my_move_turtle_pkg.turtle_cmd_and_pose:main',
             #'turtle_cmd_and_pose = my_move_turtle_pkg.turtle_cmd_and_pose1:main',
             'turtle_cmd_and_pose = my_move_turtle_pkg.turtle_cmd_and_pose2:main',
+            #'my_service_server = my_move_turtle_pkg.my_service_server:main',
+            #'my_service_server = my_move_turtle_pkg.my_service_server1:main',
+            #'my_service_server = my_move_turtle_pkg.my_service_server2:main',
+            'my_service_server = my_move_turtle_pkg.my_service_server3:main',
+            'dist_turtle_action_server = my_move_turtle_pkg.dist_turtle_action_server:main',
+
         ],
     },
 )
