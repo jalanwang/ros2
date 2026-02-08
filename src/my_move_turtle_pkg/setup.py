@@ -38,7 +38,10 @@ setup(
             #'my_service_server = my_move_turtle_pkg.my_service_server1:main',
             #'my_service_server = my_move_turtle_pkg.my_service_server2:main',
             'my_service_server = my_move_turtle_pkg.my_service_server3:main',
-            'dist_turtle_action_server = my_move_turtle_pkg.dist_turtle_action_server:main',
+            #'dist_turtle_action_server = my_move_turtle_pkg.dist_turtle_action_server:main',
+            'dist_turtle_action_server = my_move_turtle_pkg.dist_turtle_action_server1:main',
+            'turtlesim_subscriber = my_move_turtle_pkg.turtlesim_subscriber:main',
+            'my_multi_thread = my_move_turtle_pkg.my_multi_thread:main',
 
         ],
     },
