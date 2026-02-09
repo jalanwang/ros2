@@ -6,7 +6,7 @@ from std_msgs.msg import String
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QThread
 from rclpy.executors import MultiThreadedExecutor
-from my_qt_ros_rclpy_pkg.sub_msg_ui import Ui_MainWindow
+from my_qt_ros_rclpy_pkg.pub_msg_ui import Ui_MainWindow
 
 
 class RclpyThread(QThread):
