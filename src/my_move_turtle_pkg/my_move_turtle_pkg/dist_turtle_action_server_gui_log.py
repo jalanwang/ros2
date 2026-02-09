@@ -1,7 +1,5 @@
-#dist_turtle_action_server_gui_log2.py
+#dist_turtle_action_server_gui_log.py
 #기존 파일이 있어서 부득이 이름을 변경했다.
-#파라미터값을 초기에 출력하는 루틴이 추가되었다.
-#파라미터값이 수정되면, 그 값을 출력하는 루틴이 추가되었다.
 
 import rclpy as rp
 from rclpy.action import ActionServer
@@ -12,9 +10,6 @@ from turtlesim.msg import Pose
 from geometry_msgs.msg import Twist
 from my_first_package_msgs.action import DistTurtle
 from my_move_turtle_pkg.turtlesim_subscriber import TurtlesimSubscriber
-
-from rcl_interfaces.msg import SetParametersResult
-# 파라미터 결과값이 바뀌면 처리하기 위한 임포트
 
 import math
 import time
@@ -41,20 +36,6 @@ class DistTurtleServer(Node):
         self.declare_parameter('quantile_time', 0.75)
         self.declare_parameter('almost_goal_time', 0.95)
 
-        # 파라메타를 받아와서 프린트 해주는 부분
-        quantile_time, almost_goal_time = self.get_parameters(
-            ['quantile_time', 'almost_goal_time'])
-        print('quantile_time and almost_goal_time is', quantile_time.value, almost_goal_time.value)
-
-        # 파라미터가 변경되었을 때 호출되는 콜백 함수 등록
-        self.add_on_set_parameters_callback(self.parameter_callback)
-        self.get_logger().info('Parameter callback registered')
-
-    def parameter_callback(self, params):
-        self.get_logger().info(f'parameter_callback called with {len(params)} parameters')
-        for param in params:
-            print(param.name, " is changed to ", param.value)
-        return SetParametersResult(successful=True)
 
     def calc_diff_pose(self):
         if self.is_first_time:

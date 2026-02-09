@@ -1,4 +1,10 @@
+# setup.py
+# ~/robot/robot_ws/src/my_move_turtle_pkg/setup.py
+
 from setuptools import find_packages, setup
+
+import os
+import glob
 
 package_name = 'my_move_turtle_pkg'
 
@@ -10,6 +16,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/launch', glob.glob(os.path.join('launch', '*.launch.py'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -40,8 +47,15 @@ setup(
             'my_service_server = my_move_turtle_pkg.my_service_server3:main',
             #'dist_turtle_action_server = my_move_turtle_pkg.dist_turtle_action_server:main',
             'dist_turtle_action_server = my_move_turtle_pkg.dist_turtle_action_server1:main',
+            'dist_turtle_action_server_gui = my_move_turtle_pkg.dist_turtle_action_server_gui:main',
+            'dist_turtle_action_server_gui_log = my_move_turtle_pkg.dist_turtle_action_server_gui_log:main',
+            'dist_turtle_action_server_gui_log1 = my_move_turtle_pkg.dist_turtle_action_server_gui_log1:main',
+            'dist_turtle_action_server_gui_log2 = my_move_turtle_pkg.dist_turtle_action_server_gui_log2:main',
+            'dist_turtle_action_server_gui_log3 = my_move_turtle_pkg.dist_turtle_action_server_gui_log3:main',
             'turtlesim_subscriber = my_move_turtle_pkg.turtlesim_subscriber:main',
             'my_multi_thread = my_move_turtle_pkg.my_multi_thread:main',
+            'turtle_joystic = my_move_turtle_pkg.turtle_joystic:main',
+            'turtlesim_and_teleop.launch = my_move_turtle_pkg.turtlesim_and_teleop:main',
 
         ],
     },

@@ -1,7 +1,8 @@
-#dist_turtle_action_server_gui_log2.py
+#dist_turtle_action_server_gui_log3.py
 #기존 파일이 있어서 부득이 이름을 변경했다.
 #파라미터값을 초기에 출력하는 루틴이 추가되었다.
-#파라미터값이 수정되면, 그 값을 출력하는 루틴이 추가되었다.
+#파라미터값이 수정되면, 그 값을 출력하는 루틴이 삭제되었다.
+#파라미터값이 수정되면, 그 값을 로그로 출력하는 루틴이 추가되었다.
 
 import rclpy as rp
 from rclpy.action import ActionServer
@@ -51,9 +52,12 @@ class DistTurtleServer(Node):
         self.get_logger().info('Parameter callback registered')
 
     def parameter_callback(self, params):
-        self.get_logger().info(f'parameter_callback called with {len(params)} parameters')
         for param in params:
-            print(param.name, " is changed to ", param.value)
+            if param.name == 'quantile_time':
+                self.get_logger().info(f'Parameter changed: quantile_time = {param.value}')
+            elif param.name == 'almost_goal_time':
+                self.get_logger().info(f'Parameter changed: almost_goal_time = {param.value}')
+
         return SetParametersResult(successful=True)
 
     def calc_diff_pose(self):
