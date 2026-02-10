@@ -31,6 +31,7 @@ class Checker(Node):
             feedback_callback=self.get_arithmetic_action_feedback)
         self.send_goal_future.add_done_callback(self.get_arithmetic_action_goal)
         return True
+
     def get_arithmetic_action_goal(self, future):
         goal_handle = future.result()
         if not goal_handle.accepted:

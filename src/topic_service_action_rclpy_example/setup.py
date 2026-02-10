@@ -34,7 +34,7 @@ setup(
             'argument = topic_service_action_rclpy_example.argument:main',
             'calculator = topic_service_action_rclpy_example.calculator:main',
             'operator = topic_service_action_rclpy_example.operator:main',
-            'action_client = topic_service_action_rclpy_example.action_client:main',
+            'checker = topic_service_action_rclpy_example.checker:main',
 
         ],
     },
