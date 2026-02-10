@@ -10,6 +10,8 @@ from rclpy.qos import QoSReliabilityPolicy
 from rclpy.callback_groups import ReentrantCallbackGroup
 import rclpy
 
+from msg_srv_action_interface_example.srv import ArithmeticOperator
+
 class Calculator(Node):
 
     def __init__(self):
@@ -37,12 +39,60 @@ class Calculator(Node):
             QOS_RKL10V,
             callback_group=self.callback_group)
 
+        self.arithmetic_service_server = self.create_service(
+            ArithmeticOperator,
+            'arithmetic_operator',
+            self.get_arithmetic_operator,
+            callback_group=self.callback_group)
+
+
     def get_arithmetic_argument(self, msg):
       self.argument_a = msg.argument_a
       self.argument_b = msg.argument_b
       self.get_logger().info('Timestamp of the message: {0}'.format(msg.stamp))
       self.get_logger().info('Subscribed argument a: {0}'.format(self.argument_a))
       self.get_logger().info('Subscribed argument b: {0}'.format(self.argument_b))
+
+    def get_arithmetic_operator(self, request, response):
+        self.argument_operator = request.arithmetic_operator
+
+        self.argument_result = self.calculate_given_formula(
+            self.argument_a,
+            self.argument_b,
+            self.argument_operator)
+
+        response.arithmetic_result = self.argument_result
+
+        self.argument_formula = '{0} {1} {2} = {3}'.format(
+                self.argument_a,
+                self.operator[self.argument_operator-1],
+                self.argument_b,
+                self.argument_result)
+
+        self.get_logger().info(self.argument_formula)
+
+        return response
+
+    def calculate_given_formula(self, a, b, operator):
+        if operator == ArithmeticOperator.Request.PLUS:
+            self.argument_result = a + b
+        elif operator == ArithmeticOperator.Request.MINUS:
+            self.argument_result = a - b
+        elif operator == ArithmeticOperator.Request.MULTIPLY:
+            self.argument_result = a * b
+        elif operator == ArithmeticOperator.Request.DIVISION:
+            try:
+                self.argument_result = a / b
+            except ZeroDivisionError:
+                self.get_logger().error('ZeroDivisionError!')
+                self.argument_result = 0.0
+                return self.argument_result
+        else:
+            self.get_logger().error(
+                'Please make sure arithmetic operator(plus, minus, multiply, division).')
+            self.argument_result = 0.0
+        return self.argument_result
+
 
 def main(args=None):
   rclpy.init(args=args)
