@@ -1,10 +1,11 @@
-# ~/robot_ws/src/my_first_ros_rclpy_pkg/setup.py
+# ~/robot_ws/src/topic_service_action_rclpy_example/setup.py
 
 import os
-from glob import glob
+import glob
+
 from setuptools import find_packages, setup
 
-package_name = 'my_first_ros_rclpy_pkg'
+package_name = 'topic_service_action_rclpy_example'
 
 setup(
     name=package_name,
@@ -14,7 +15,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+        (os.path.join('share', package_name, 'launch'), glob.glob(os.path.join('launch', '*.launch.py'))),
+        (os.path.join('share', package_name, 'param'), glob.glob(os.path.join('param', '*.yaml'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -27,10 +29,11 @@ setup(
             'pytest',
         ],
     },
-		entry_points={
+    entry_points={
         'console_scripts': [
-            'helloworld_publisher = my_first_ros_rclpy_pkg.helloworld_publisher:main',
-            'helloworld_subscriber = my_first_ros_rclpy_pkg.helloworld_subscriber:main',
+            'argument = topic_service_action_rclpy_example.argument:main',
+            'calculator = topic_service_action_rclpy_example.calculator:main',
+
         ],
     },
 )
