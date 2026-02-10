@@ -14,6 +14,8 @@ from msg_srv_action_interface_example.srv import ArithmeticOperator
 from msg_srv_action_interface_example.action import ArithmeticChecker
 from rclpy.action import ActionServer
 
+from rclpy.executors import MultiThreadedExecutor
+
 class Calculator(Node):
 
     def __init__(self):
@@ -126,15 +128,22 @@ class Calculator(Node):
 
 
 def main(args=None):
-  rclpy.init(args=args)
-  node = Calculator()
-  try:
-    rclpy.spin(node)
-  except KeyboardInterrupt:
-    node.get_logger().info('Keyboard Interrupt (SIGINT)')
-  finally:
-    node.destroy_node()
-    rclpy.shutdown()
+    rclpy.init(args=args)
+    try:
+        calculator = Calculator()
+        executor = MultiThreadedExecutor(num_threads=4)
+        executor.add_node(calculator)
+        try:
+            executor.spin()
+        except KeyboardInterrupt:
+            calculator.get_logger().info('Keyboard Interrupt (SIGINT)')
+        finally:
+            executor.shutdown()
+            calculator.arithmetic_action_server.destroy()
+            calculator.destroy_node()
+    finally:
+        rclpy.shutdown()
+
 
 if __name__ == '__main__':
-  main()
+    main()
