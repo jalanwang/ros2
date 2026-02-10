@@ -52,7 +52,8 @@ def main(args=None):
         operator.get_logger().info('Keyboard Interrupt (SIGINT)')
 
     operator.destroy_node()
-    rclpy.shutdown()
+    if rclpy.ok():
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':

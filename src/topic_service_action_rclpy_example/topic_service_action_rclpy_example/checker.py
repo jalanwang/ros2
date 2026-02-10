@@ -84,7 +84,8 @@ def main(argv=sys.argv[1:]):
             checker.arithmetic_action_client.destroy()
             checker.destroy_node()
     finally:
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':

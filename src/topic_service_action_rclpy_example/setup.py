@@ -35,6 +35,7 @@ setup(
             'calculator = topic_service_action_rclpy_example.calculator:main',
             'operator = topic_service_action_rclpy_example.operator:main',
             'checker = topic_service_action_rclpy_example.checker:main',
+            'launcher = topic_service_action_rclpy_example.arithmetic.launch:main',
 
         ],
     },

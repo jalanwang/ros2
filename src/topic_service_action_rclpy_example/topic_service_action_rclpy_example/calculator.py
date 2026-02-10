@@ -142,7 +142,8 @@ def main(args=None):
             calculator.arithmetic_action_server.destroy()
             calculator.destroy_node()
     finally:
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':
