@@ -18,10 +18,24 @@ add_executable(argument src/arithmetic/argument.cpp)
 ament_target_dependencies(argument
   msg_srv_action_interface_example
   rclcpp
+  rclcpp_action
 )
 
 add_executable(calculator src/calculator/main.cpp src/calculator/calculator.cpp)
 ament_target_dependencies(calculator
+  msg_srv_action_interface_example
+  rclcpp
+  rclcpp_action
+)
+
+add_executable(operator src/arithmetic/operator.cpp)
+ament_target_dependencies(operator
+  msg_srv_action_interface_example
+  rclcpp
+)
+
+add_executable(checker src/checker/main.cpp src/checker/checker.cpp)
+ament_target_dependencies(checker
   msg_srv_action_interface_example
   rclcpp
   rclcpp_action
@@ -42,6 +56,8 @@ endif()
 install(TARGETS
   argument
   calculator
+  operator
+  checker
   DESTINATION lib/${PROJECT_NAME}
 )
 

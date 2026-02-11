@@ -1,59 +1,109 @@
-#ifndef CALCULATOR__CALCULATOR_HPP_
-#define CALCULATOR__CALCULATOR_HPP_
-
+#include <cstdio>
 #include <memory>
-#include <sstream>
 #include <string>
 #include <utility>
-#include <vector>
-#include <stdexcept>
+#include <random>
 
 #include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
+#include "rcutils/cmdline_parser.h"
 
-#include "msg_srv_action_interface_example/msg/arithmetic_argument.hpp"
-#include "msg_srv_action_interface_example/srv/arithmetic_operator.hpp"
-#include "msg_srv_action_interface_example/action/arithmetic_checker.hpp"
+#include "arithmetic/argument.hpp"
 
+using namespace std::chrono_literals;
 
-class Calculator : public rclcpp::Node
+Argument::Argument(const rclcpp::NodeOptions & node_options)
+: Node("argument", node_options),
+  min_random_num_(0.0),
+  max_random_num_(0.0)
 {
-public:
-  using ArithmeticArgument = msg_srv_action_interface_example::msg::ArithmeticArgument;
-  using ArithmeticOperator = msg_srv_action_interface_example::srv::ArithmeticOperator;
-  using ArithmeticChecker = msg_srv_action_interface_example::action::ArithmeticChecker;
-  using GoalHandleArithmeticChecker = rclcpp_action::ServerGoalHandle<ArithmeticChecker>;
+  this->declare_parameter("qos_depth", 10);
+  int8_t qos_depth = this->get_parameter("qos_depth").get_value<int8_t>();
+  this->declare_parameter("min_random_num", 0.0);
+  min_random_num_ = this->get_parameter("min_random_num").get_value<float>();
+  this->declare_parameter("max_random_num", 9.0);
+  max_random_num_ = this->get_parameter("max_random_num").get_value<float>();
+  this->update_parameter();
 
-  explicit Calculator(const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions());
-  virtual ~Calculator();
+  const auto QOS_RKL10V =
+    rclcpp::QoS(rclcpp::KeepLast(qos_depth)).reliable().durability_volatile();
 
-  float calculate_given_formula(const float & a, const float & b, const int8_t & operators);
+  arithmetic_argument_publisher_ =
+    this->create_publisher<ArithmeticArgument>("arithmetic_argument", QOS_RKL10V);
 
-private:
-  rclcpp_action::GoalResponse handle_goal(
-    const rclcpp_action::GoalUUID & uuid,
-    std::shared_ptr<const ArithmeticChecker::Goal> goal);
-  rclcpp_action::CancelResponse handle_cancel(
-    const std::shared_ptr<GoalHandleArithmeticChecker> goal_handle);
-  void execute_checker(const std::shared_ptr<GoalHandleArithmeticChecker> goal_handle);
+  timer_ =
+    this->create_wall_timer(1s, std::bind(&Argument::publish_random_arithmetic_arguments, this));
+}
 
-  rclcpp::Subscription<ArithmeticArgument>::SharedPtr
-    arithmetic_argument_subscriber_;
+Argument::~Argument()
+{
+}
 
-  rclcpp::Service<ArithmeticOperator>::SharedPtr
-    arithmetic_argument_server_;
+void Argument::publish_random_arithmetic_arguments()
+{
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<float> distribution(min_random_num_, max_random_num_);
 
-  rclcpp_action::Server<ArithmeticChecker>::SharedPtr
-    arithmetic_action_server_;
+  msg_srv_action_interface_example::msg::ArithmeticArgument msg;
+  msg.stamp = this->now();
+  msg.argument_a = distribution(gen);
+  msg.argument_b = distribution(gen);
+  arithmetic_argument_publisher_->publish(msg);
 
-  float argument_a_;
-  float argument_b_;
+  RCLCPP_INFO(this->get_logger(), "Published argument_a %.2f", msg.argument_a);
+  RCLCPP_INFO(this->get_logger(), "Published argument_b %.2f", msg.argument_b);
+}
 
-  int8_t argument_operator_;
-  float argument_result_;
+void Argument::update_parameter()
+{
+  parameters_client_ = std::make_shared<rclcpp::AsyncParametersClient>(this);
+  while (!parameters_client_->wait_for_service(1s)) {
+    if (!rclcpp::ok()) {
+      RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+      return;
+    }
+    RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+  }
 
-  std::string argument_formula_;
-  std::vector<std::string> operator_;
-};
-#endif  // CALCULATOR__CALCULATOR_HPP_
+  auto param_event_callback =
+    [this](const rcl_interfaces::msg::ParameterEvent::SharedPtr event) -> void
+    {
+      for (auto & changed_parameter : event->changed_parameters) {
+        if (changed_parameter.name == "min_random_num") {
+          auto value = rclcpp::Parameter::from_parameter_msg(changed_parameter).as_double();
+          min_random_num_ = value;
+        } else if (changed_parameter.name == "max_random_num") {
+          auto value = rclcpp::Parameter::from_parameter_msg(changed_parameter).as_double();
+          max_random_num_ = value;
+        }
+      }
+    };
 
+  parameter_event_sub_ = parameters_client_->on_parameter_event(param_event_callback);
+}
+
+void print_help()
+{
+  printf("For argument node:\n");
+  printf("node_name [-h]\n");
+  printf("Options:\n");
+  printf("\t-h Help           : Print this help function.\n");
+}
+
+int main(int argc, char * argv[])
+{
+  if (rcutils_cli_option_exist(argv, argv + argc, "-h")) {
+    print_help();
+    return 0;
+  }
+
+  rclcpp::init(argc, argv);
+
+  auto argument = std::make_shared<Argument>();
+
+  rclcpp::spin(argument);
+
+  rclcpp::shutdown();
+
+  return 0;
+}
