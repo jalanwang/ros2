@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
       else: self.logic_engine.update_key(ros_key)
 
   def ros_main_loop(self):
-    rclpy.spin_once(self.logic_engine, timeout_sec=0)
+    # rclpy.spin_once(self.logic_engine, timeout_sec=0) # Executor thread handles spinning
     self.logic_engine.update_and_publish() # 로직 엔진의 update_and_publish 함수를 호출하여 로직을 업데이트하고 cmd_vel 메시지를 발행한다.
 
     curr_x = self.logic_engine.pose_tracker.last_pose_x

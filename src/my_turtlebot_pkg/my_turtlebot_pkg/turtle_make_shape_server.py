@@ -136,8 +136,8 @@ class TurtleMakeShapeServer(Node):
     async def _call_go_front_service(self, length):
         request = GoFront.Request()
         request.length = length
-        future = self.go_front_client.call_async(request) # Call service asynchronously
-        rclpy.spin_until_future_complete(self, future) # This is still needed for blocking wait in async context
+        future = self.go_front_client.call_async(request)
+        await future # Use await for asynchronous waiting
         if future.result() is not None:
             self.get_logger().info(f'GoFront service response: {future.result().success}')
             return future.result().success
@@ -148,8 +148,8 @@ class TurtleMakeShapeServer(Node):
     async def _call_rotate_service(self, angle_degrees):
         request = Rotate.Request()
         request.angle_degrees = angle_degrees
-        future = self.rotate_client.call_async(request) # Call service asynchronously
-        rclpy.spin_until_future_complete(self, future) # This is still needed for blocking wait in async context
+        future = self.rotate_client.call_async(request)
+        await future # Use await for asynchronous waiting
         if future.result() is not None:
             self.get_logger().info(f'Rotate service response: {future.result().success}')
             return future.result().success
@@ -159,8 +159,8 @@ class TurtleMakeShapeServer(Node):
 
     async def _call_stop_service(self):
         request = Stop.Request()
-        future = self.stop_client.call_async(request) # Call service asynchronously
-        rclpy.spin_until_future_complete(self, future) # This is still needed for blocking wait in async context
+        future = self.stop_client.call_async(request)
+        await future # Use await for asynchronous waiting
         if future.result() is not None:
             self.get_logger().info(f'Stop service response: {future.result().success}')
             return future.result().success

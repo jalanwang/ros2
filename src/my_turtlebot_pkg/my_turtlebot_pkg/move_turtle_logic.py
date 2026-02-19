@@ -164,7 +164,7 @@ class MoveTurtleLogic(Node):
     yaw_tolerance = math.radians(2.0) # 2 degrees tolerance
 
     while True:
-        # rclpy.spin_once(self, timeout_sec=0.01) # Executor handles spinning
+        # rclpy.spin_once(self, timeout_sec=0.01) # Executor handles spinning, removed to prevent nested spin
         current_yaw = self.get_yaw()
 
         yaw_diff = target_yaw - current_yaw
@@ -190,7 +190,7 @@ class MoveTurtleLogic(Node):
     while distance_moved < length:
       # The update_and_publish loop will handle publishing cmd_vel based on self.velocity
       # We just need to spin to get updated pose data
-      # rclpy.spin_once(self, timeout_sec=0.01) # Executor handles spinning
+      # rclpy.spin_once(self, timeout_sec=0.01) # Executor handles spinning, removed to prevent nested spin
 
       current_x = self.pose_tracker.last_pose_x
       current_y = self.pose_tracker.last_pose_y
