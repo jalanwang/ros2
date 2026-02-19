@@ -13,6 +13,9 @@ from rclpy.qos import QoSProfile
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import LaserScan
 
+from rclpy.callback_groups import ReentrantCallbackGroup
+from my_package_msgs.srv import GoFront, Rotate, Stop
+
 from .turtle_pose_and_position import TurtlebotPose
 import time
 
@@ -39,6 +42,14 @@ class MoveTurtleLogic(Node):
 
     self.MAX_LINEAR_VEL = 0.22 # m/s (Turtlebot3 Burger max linear velocity)
     self.MAX_ANGULAR_VEL = 2.84 # rad/s (Turtlebot3 Burger max angular velocity)
+
+    # Service Servers for basic movements
+    self.service_callback_group = ReentrantCallbackGroup()
+    self.go_front_srv = self.create_service(GoFront, 'go_front_service', self.go_front_service_callback, callback_group=self.service_callback_group)
+    self.rotate_srv = self.create_service(Rotate, 'rotate_service', self.rotate_service_callback, callback_group=self.service_callback_group)
+    self.stop_srv = self.create_service(Stop, 'stop_service', self.stop_service_callback, callback_group=self.service_callback_group)
+
+    self.get_logger().info("MoveTurtleLogic node initialized with movement services.")
 
     self.linear_x = 0.2 # m/s (Turtlebot3 Burger max linear velocity)
     self.log_queue = [] # 로직 엔진에서 발생하는 로그 메시지를 저장하는 큐.
@@ -77,8 +88,8 @@ class MoveTurtleLogic(Node):
     self.velocity = max(-self.MAX_LINEAR_VEL, min(self.velocity, self.MAX_LINEAR_VEL))
     self.angular = max(-self.MAX_ANGULAR_VEL, min(self.angular, self.MAX_ANGULAR_VEL))
 
-  def stop(self):
-    """Sets both linear and angular velocities to zero."""
+  def _internal_stop(self):
+    """Internal helper to stop the robot. Used by blocking movements and obstacle detection."""
     self.velocity = 0.0
     self.angular = 0.0
     self._apply_velocity_limits() # Ensure limits are applied even for stop
@@ -87,7 +98,32 @@ class MoveTurtleLogic(Node):
     msg.linear.x = 0.0
     msg.angular.z = 0.0
     self.cmd_vel_publisher.publish(msg)
-    self.add_log("Stopped")
+    # self.add_log("Robot internally stopped.") # Avoid excessive logging for internal stops
+
+  def stop(self):
+    """Public stop command, logs and publishes. This is called by GUI."""
+    self._internal_stop()
+    self.add_log("Stopped by user command.")
+    self.get_logger().info("Robot stopped by user command.")
+
+  # Service Callbacks
+  def go_front_service_callback(self, request, response):
+    self.get_logger().info(f"Received GoFront service request: length={request.length}")
+    self.go_front(request.length) # Call the internal blocking function
+    response.success = True
+    return response
+
+  def rotate_service_callback(self, request, response):
+    self.get_logger().info(f"Received Rotate service request: angle_degrees={request.angle_degrees}")
+    self.rotate(request.angle_degrees) # Call the internal blocking function
+    response.success = True
+    return response
+
+  def stop_service_callback(self, request, response):
+    self.get_logger().info("Received Stop service request.")
+    self._internal_stop() # Call internal stop
+    response.success = True
+    return response
 
   def set_linear_velocity(self, linear_speed):
     """Sets the linear velocity."""
@@ -140,7 +176,7 @@ class MoveTurtleLogic(Node):
         self.set_angular_velocity(turn_speed if yaw_diff > 0 else -turn_speed) # Set angular velocity
         time.sleep(0.01) # Small delay
 
-    self.stop() # Stop the robot after turning
+    self._internal_stop() # Stop the robot after turning
     self.add_log(f"Rotated by {target_angle_degrees:.2f} degrees.")
 
   def go_front(self, length):
@@ -149,7 +185,7 @@ class MoveTurtleLogic(Node):
     start_y = self.pose_tracker.last_pose_y
     distance_moved = 0.0
 
-    self.go(self.linear_x) # Start moving forward
+    self.set_linear_velocity(self.linear_x) # Start moving forward with default linear_x
 
     while distance_moved < length:
       # The update_and_publish loop will handle publishing cmd_vel based on self.velocity
@@ -162,7 +198,7 @@ class MoveTurtleLogic(Node):
 
       time.sleep(0.01) # Small delay to prevent busy-waiting
 
-    self.stop() # Stop the robot after moving the desired length
+    self._internal_stop() # Stop the robot after moving the desired length
     self.add_log(f"Moved {length:.2f} meters.")
 
 
@@ -190,40 +226,41 @@ class MoveTurtleLogic(Node):
   def action_triangle(self):
     # GUI에서 삼각형 버튼 클릭 시 호출되는 함수로, 특정 행동을 수행하도록 하는 함수
     self.get_logger().info('Triangle button clicked!')
-    self.add_log("Triangle button clicked!")
-    # 여기에 삼각형 버튼 클릭 시 수행할 행동을 구현
+    self.add_log("Triangle button clicked! (GUI will send Action Goal)")
 
   def action_square(self):
     # GUI에서 사각형 버튼 클릭 시 호출되는 함수로, 특정 행동을 수행하도록 하는 함수
     self.get_logger().info('Square button clicked!')
-    self.add_log("Square button clicked!")
-    # 여기에 사각형 버튼 클릭 시 수행할 행동을 구현
+    self.add_log("Square button clicked! (GUI will send Action Goal)")
 
   def update_and_publish(self):
     msg = Twist() # Twist 메시지 객체를 생성하여 터틀봇의 선속도와 각속도를 설정하는 함수
 
-    # rclpy.spin_once(self, timeout_sec=0)
-    # ROS2 이벤트 루프(머 들어온것 있어?)를 한 번 실행하여 콜백 함수가 호출되도록 함
-    # 돌아오면 바로 아래로 돌아가도록 타임아웃 0 설정
-
-    log_text=f"Obstacle Detected! Distance: {self.front_min: .2f}m"
-    if(self.is_obstacle_ahead() and self.velocity > 0):
+    # Check for obstacles only if the robot is trying to move forward
+    if self.is_obstacle_ahead() and self.velocity > 0:
+      log_text=f"Obstacle Detected! Distance: {self.front_min: .2f}m"
       self.get_logger().info(f'Obstacle 발견!: {self.front_min}', throttle_duration_sec=1)
       self.add_log(log_text)
-      self.stop() # Stop the robot
-
+      self._internal_stop() # Use internal stop
+      msg.linear.x = 0.0
+      msg.angular.z = 0.0
     else:
-      msg.linear.x = self.velocity # 값 변화 없이 진행
-      msg.angular.z = self.angular # 값 변화 없이 진행
-      self.get_logger().info(f'No Obstacle: {self.front_min}', throttle_duration_sec=1)
+      msg.linear.x = self.velocity
+      msg.angular.z = self.angular
+      # Only log "No Obstacle" if not already stopped by obstacle
+      if not self.is_obstacle_ahead():
+        self.get_logger().info(f'No Obstacle: {self.front_min}', throttle_duration_sec=1)
 
     self.cmd_vel_publisher.publish(msg) # cmd_vel 토픽에 Twist 메시지를 발행하여 터틀봇의 속도와 회전 속도를 제어
 
+# The main function for MoveTurtleLogic is commented out because it's intended to be
+# instantiated and spun by move_turtle_by_controller_rclpy.py.
+# If this node were to run standalone, this main function would be used.
 # def main(args=None):
 #   rclpy.init(args=args)
 #   node = MoveTurtleLogic()
 #   try:
-#     node.turtle_key_move()
+#     rclpy.spin(node)
 #   except KeyboardInterrupt:
 #     node.get_logger().info('Keyboard interrupt!!!!')
 #   finally:

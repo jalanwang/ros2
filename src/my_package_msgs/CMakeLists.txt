@@ -14,6 +14,9 @@ find_package(rosidl_default_generators REQUIRED)
 # 인터페이스 추가
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/TurtleMakeShape.action"  # 액션 인터페이스 Proto 파일
+  "srv/GoFront.srv"
+  "srv/Rotate.srv"
+  "srv/Stop.srv"
   DEPENDENCIES std_msgs
 )
 # ---------------------------------------------------------

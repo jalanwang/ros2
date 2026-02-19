@@ -6,14 +6,19 @@
 # GUI 이벤트 핸들러에서 ROS2 퍼블리셔를 통해 터틀봇을 제어하는 노드를 구현.
 
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import QFile
+from PySide6.QtWidgets import QApplication, QMainWindow # Removed QFile as it's not used
 # controller_ui.py에서 Ui_MainWindow 클래스를 import.
 from .controller_ui import Ui_MainWindow
 
 from my_turtlebot_pkg.move_turtle_logic import MoveTurtleLogic # 움직임을 담당하는 엔진 클래스
 
 import rclpy
+from rclpy.action import ActionClient
+from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
+from my_package_msgs.action import TurtleMakeShape # Import the action definition
+import threading
+
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtCore import QTimer, Qt
 
@@ -38,14 +43,68 @@ class MainWindow(QMainWindow):
     self.time.timeout.connect(self.ros_main_loop)
     self.time.start(50) # 50ms마다 ros_main_loop 함수를 호출하여 ROS2 이벤트를 처리한다.
 
+    # Action Client for TurtleMakeShape
+    self.action_client_callback_group = ReentrantCallbackGroup()
+    self._action_client = ActionClient(
+        self.logic_engine, # Use the logic_engine node as the client node
+        TurtleMakeShape,
+        'turtle_make_shape',
+        callback_group=self.action_client_callback_group
+    )
+    self.logic_engine.get_logger().info("Action Client for TurtleMakeShape initialized.")
+
   def pb_go_clicked(self): self.logic_engine.update_key('w')
   def pb_back_clicked(self): self.logic_engine.update_key('x')
   def pb_left_clicked(self): self.logic_engine.update_key('a')
   def pb_right_clicked(self): self.logic_engine.update_key('d')
   def pb_stop_clicked(self): self.logic_engine.update_key('s')
 
-  def pb_triangle_clicked(self): self.logic_engine.action_triangle()
-  def pb_square_clicked(self): self.logic_engine.action_square()
+  def pb_triangle_clicked(self):
+    self.logic_engine.add_log("Sending Triangle Action Goal...")
+    self._send_shape_goal(shape_type=2, side_length=0.5, iterations=1) # Triangle
+
+  def pb_square_clicked(self):
+    self.logic_engine.add_log("Sending Square Action Goal...")
+    self._send_shape_goal(shape_type=1, side_length=0.5, iterations=1) # Square
+
+  def _send_shape_goal(self, shape_type, side_length, iterations):
+    self.logic_engine.get_logger().info('Waiting for action server...')
+    self._action_client.wait_for_server()
+
+    goal_msg = TurtleMakeShape.Goal()
+    goal_msg.shape_type = shape_type
+    goal_msg.side_length = side_length
+    goal_msg.iterations = iterations
+
+    self.logic_engine.get_logger().info('Sending goal...')
+    self._send_goal_future = self._action_client.send_goal_async(
+        goal_msg,
+        feedback_callback=self._feedback_callback
+    )
+    self._send_goal_future.add_done_callback(self._goal_response_callback)
+
+  def _goal_response_callback(self, future):
+    goal_handle = future.result()
+    if not goal_handle.accepted:
+        self.logic_engine.add_log('Goal rejected :(')
+        self.logic_engine.get_logger().warn('Goal rejected :(')
+        return
+
+    self.logic_engine.add_log('Goal accepted :)')
+    self.logic_engine.get_logger().info('Goal accepted :)')
+
+    self._get_result_future = goal_handle.get_result_async()
+    self._get_result_future.add_done_callback(self._get_result_callback)
+
+  def _get_result_callback(self, future):
+    result = future.result().result
+    self.logic_engine.add_log(f'Action Result: {result.message}')
+    self.logic_engine.get_logger().info(f'Action Result: {result.message}')
+
+  def _feedback_callback(self, feedback_msg):
+    feedback = feedback_msg.feedback
+    self.logic_engine.add_log(f'Action Feedback: {feedback.status}')
+    self.logic_engine.get_logger().info(f'Action Feedback: {feedback.status}')
 
   def keyPressEvent(self, event: QKeyEvent):
     """키보드 입력 이벤트 처리는 이 함수에서 처리한다."""
@@ -59,9 +118,9 @@ class MainWindow(QMainWindow):
       Qt.Key_2: 'square'    # 숫자 2키
     }
     ros_key = key_map.get(event.key())
-    if ros_key:
-      if ros_key == 'triangle': self.logic_engine.action_triangle()
-      elif ros_key == 'square': self.logic_engine.action_square()
+    if ros_key: # Call button handler to send action goal
+      if ros_key == 'triangle': self.pb_triangle_clicked()
+      elif ros_key == 'square': self.pb_square_clicked()
       else: self.logic_engine.update_key(ros_key)
 
   def ros_main_loop(self):
@@ -85,10 +144,20 @@ def main(args=None):
 
     logic_engine = MoveTurtleLogic() # 움직임을 담당하는 엔진 하나 생성.
 
+    # Use MultiThreadedExecutor to allow action client/server callbacks to run
+    # while the GUI's QTimer also calls spin_once.
+    # The logic_engine node is added to the executor.
+    executor = MultiThreadedExecutor()
+    executor.add_node(logic_engine)
+
     # GUI 앱 실행 및 엔진 주입
     app = QApplication(sys.argv)
     window = MainWindow(logic_engine) # GUI 창에 로직 엔진을 주입하여 이벤트 핸들러에서 사용할 수 있도록 함
     window.show()
+
+    # Start a separate thread for the ROS 2 executor
+    executor_thread = threading.Thread(target=executor.spin, daemon=True)
+    executor_thread.start()
 
     try:
       sys.exit(app.exec())
