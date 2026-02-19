@@ -1,0 +1,20 @@
+```mermaid
+graph TD
+    subgraph "GUI Process (move_turtle_by_controller_rclpy.py)"
+        GUI_App["GUI (PySide6 App)"]
+        PACN["TurtleMakeShapeActionClientNode (ROS 2 Node)"]
+    end
+
+    MTL["MoveTurtleLogic (ROS 2 Node)"]
+    TBPS["TurtleMakeShapeServer (ROS 2 Action Server)"]
+    ROS_Topics[ROS 2 Topics]
+
+    GUI_App -- "Manual Control (w,a,s,d,x)" --> MTL
+    GUI_App -- "Action Request (Internal Call)" --> PACN
+    PACN -- "Action Goal (TurtleMakeShape.action)" --> TBPS
+    TBPS -- "Action Feedback/Result" --> PACN
+
+    TBPS -- "Calls basic movements (move_straight(), rotate(), stop_move())" --> MTL
+
+    MTL -- "Publishes /cmd_vel" --> ROS_Topics
+    ROS_Topics -- "Subscribes /odom, /scan" --> MTL
