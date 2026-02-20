@@ -1,0 +1,52 @@
+'''mermaid
+graph TD
+    subgraph GUI_Process [GUI Process: move_turtle_by_controller_rclpy.py]
+        GUI_App[GUI: PySide6 App]
+        AC[ActionClient: TurtleMakeShape]
+    end
+
+    subgraph Movement_Logic [Movement Logic: move_turtle_logic.py]
+        MTL[MoveTurtleLogic: ROS 2 Node]
+        SS_GF[ServiceServer: GoFront]
+        SS_R[ServiceServer: Rotate]
+        SS_S[ServiceServer: Stop]
+        SUB_Scan[Subscriber: /scan]
+        SUB_Odom[Subscriber: /odom]
+        PUB_CmdVel[Publisher: /cmd_vel]
+    end
+
+    subgraph Shape_Action_Server [Shape Action Server: turtle_make_shape_server.py]
+        AS[ActionServer: TurtleMakeShape]
+        SC_GF[ServiceClient: GoFront]
+        SC_R[ServiceClient: Rotate]
+        SC_S[ServiceClient: Stop]
+    end
+
+    ROS_Topics((ROS 2 Topics))
+
+    %% Connections
+    GUI_App -- "Manual Control: w,a,s,d,x" --> MTL
+    GUI_App -- "Action Request" --> AC
+    AC <--> |"Goal / Feedback / Result"| AS
+
+    %% Action Server to Service Calls
+    AS --> SC_GF
+    AS --> SC_R
+    AS --> SC_S
+
+    SC_GF -. "Request/Response" .-> SS_GF
+    SC_R -. "Request/Response" .-> SS_R
+    SC_S -. "Request/Response" .-> SS_S
+
+    %% Service to Logic Execution
+    SS_GF --> MTL
+    SS_R --> MTL
+    SS_S --> MTL
+
+    %% Topic Flow
+    MTL --> PUB_CmdVel
+    PUB_CmdVel --> |"/cmd_vel"| ROS_Topics
+    ROS_Topics --> |"/scan"| SUB_Scan
+    ROS_Topics --> |"/odom"| SUB_Odom
+    SUB_Scan --> MTL
+    SUB_Odom --> MTL
