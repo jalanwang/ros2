@@ -41,6 +41,7 @@ setup(
           'move_turtle_by_controller_rclpy = my_turtlebot_pkg.move_turtle_by_controller_rclpy:main',
           'move_turtle_logic = my_turtlebot_pkg.move_turtle_logic:main',
           'turtle_pose_and_position = my_turtlebot_pkg.turtle_pose_and_position:main',
+          'finger_joystic = my_turtlebot_pkg.finger_joystic:main',
 
         ],
     },

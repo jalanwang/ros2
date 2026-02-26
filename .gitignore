@@ -15,6 +15,7 @@ __pycache__/
 env/
 .venv/
 venv/
+.venv_mp/
 ENV/
 develop-eggs/
 dist/
